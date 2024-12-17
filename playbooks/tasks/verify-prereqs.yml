@@ -1,0 +1,29 @@
+---
+- name: Check for required tools
+  command: which {{ item }}
+  changed_when: false
+  with_items:
+    - openshift-install
+    - oc
+    - kubectl
+    - aws
+    - jq
+
+- name: Verify DNS configuration
+  command: dig +short api.{{ cluster_name }}.{{ base_domain }}
+  changed_when: false
+  failed_when: false
+  register: dns_check
+
+- name: Verify pull secret exists
+  stat:
+    path: "{{ lookup('env', 'HOME') }}/.openshift/pull-secret"
+  register: pull_secret
+
+- name: Verify SSH key exists
+  stat:
+    path: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa.pub"
+  register: ssh_key
+
+- name: Verify cloud credentials
+  include_tasks: "cloud/{{ cloud_provider }}_verify.yml"

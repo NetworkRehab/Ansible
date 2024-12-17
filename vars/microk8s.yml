@@ -1,0 +1,31 @@
+---
+# MicroK8s Configuration
+microk8s_channel: "1.28/stable"
+microk8s_ha_enabled: true
+microk8s_min_nodes: 3
+
+# Enabled Add-ons
+microk8s_addons:
+  - dns
+  - ingress
+  - metallb:{{ metallb_ip_range }}
+  - prometheus
+  - cert-manager
+  - registry
+  - hostpath-storage
+
+# Network Configuration
+metallb_ip_range: "192.168.1.200-192.168.1.220"
+pod_cidr: "10.1.0.0/16"
+service_cidr: "10.152.183.0/24"
+
+# Storage Configuration
+storage_size: "100Gi"
+storage_path: "/var/snap/microk8s/common/default-storage"
+
+# Security Settings
+enable_rbac: true
+enable_pod_security: true
+allowed_users:
+  - ubuntu
+  - admin

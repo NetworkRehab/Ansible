@@ -1,0 +1,54 @@
+---
+# System Configuration
+system_packages:
+  - epel-release
+  - python3-pip
+  - firewalld
+  - policycoreutils-python-utils
+
+# Service enablement with proper defaults
+enabled_services: "{{ 
+  (enable_httpd | default(false) | ternary(['httpd'], [])) +
+  (enable_mariadb | default(false) | ternary(['mariadb'], [])) +
+  (enable_php | default(false) | ternary(['php-fpm'], [])) +
+  (enable_redis | default(false) | ternary(['redis'], [])) +
+  (enable_nginx | default(false) | ternary(['nginx'], []))
+}}"
+
+# Service enablement
+enable_httpd: false
+enable_mariadb: false
+enable_php: false
+enable_redis: false
+enable_nginx: false
+enable_monitoring: false
+
+# MariaDB Configuration
+mariadb_root_password: "changeme"
+mariadb_set_root_password: true
+
+# Web Server Configuration
+httpd_port: 80
+nginx_port: 80
+
+# PHP Configuration
+php_version: "8.0"
+php_modules:
+  - php-fpm
+  - php-mysql
+  - php-xml
+  - php-mbstring
+
+# Redis Configuration
+redis_port: 6379
+redis_bind_interface: "127.0.0.1"
+
+# Monitoring Configuration
+enable_node_exporter: true
+enable_prometheus: false
+
+# Security Configuration
+default_firewall_services:
+  - ssh
+  - "{{ enable_httpd | default(false) | ternary('http', '') }}"
+  - "{{ enable_httpd | default(false) | ternary('https', '') }}"

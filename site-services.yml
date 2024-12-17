@@ -1,0 +1,32 @@
+---
+- name: Install and Configure Common Services
+  hosts: all
+  become: yes
+  vars_files:
+    - vars/services.yml
+  
+  pre_tasks:
+    - name: Update package cache
+      dnf:
+        update_cache: yes
+      changed_when: false
+      tags: [always]
+
+    - name: Ensure required system packages
+      dnf:
+        name: "{{ system_packages }}"
+        state: present
+      tags: [packages]
+
+  roles:
+    - { role: common, tags: ['common'] }
+    # ...existing code...
+
+  post_tasks:
+    - name: Ensure services are running
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items: "{{ enabled_services }}"
+      tags: [services]

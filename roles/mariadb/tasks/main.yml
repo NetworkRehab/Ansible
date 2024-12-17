@@ -1,0 +1,53 @@
+---
+- name: Include variables based on OS
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "vars/{{ ansible_os_family }}.yml"
+    - "vars/default.yml"
+  tags: [always]
+
+- name: Install MariaDB packages
+  dnf:
+    name: "{{ mariadb_packages }}"
+    state: present
+    update_cache: yes
+  tags: [mariadb, packages]
+
+- name: Ensure MariaDB directories exist with proper permissions
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: '0750'
+  with_items:
+    - "{{ mariadb_data_dir }}"
+    - "{{ mariadb_log_dir }}"
+  tags: [mariadb, security]
+
+- name: Configure MariaDB
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf.d/server.cnf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: '/usr/bin/mysql --defaults-file=%s --help'
+  notify: restart mariadb
+  tags: [mariadb, configuration]
+
+- name: Start and enable MariaDB
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Set MariaDB root password
+  mysql_user:
+    name: root
+    host_all: yes
+    password: "{{ mariadb_root_password }}"
+    check_implicit_admin: yes
+    login_unix_socket: /var/lib/mysql/mysql.sock
+  no_log: true
+  when: mariadb_set_root_password | bool

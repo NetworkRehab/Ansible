@@ -1,0 +1,46 @@
+---
+- name: Install Production OpenShift Cluster
+  hosts: localhost
+  gather_facts: true
+  vars_files:
+    - ../vars/openshift.yml
+
+  pre_tasks:
+    - name: Verify prerequisites
+      include_tasks: tasks/verify-prereqs.yml
+      tags: [prereq]
+
+  tasks:
+    - name: Generate install-config.yaml
+      template:
+        src: templates/install-config.yaml.j2
+        dest: "{{ cluster_name }}/install-config.yaml"
+        mode: '0644'
+      tags: [config]
+
+    - name: Backup install-config.yaml
+      copy:
+        src: "{{ cluster_name }}/install-config.yaml"
+        dest: "{{ cluster_name }}/install-config.yaml.bak"
+      tags: [config]
+
+    - name: Create OpenShift cluster
+      command: openshift-install create cluster --dir={{ cluster_name }} --log-level=info
+      async: 3600
+      poll: 30
+      tags: [install]
+
+  post_tasks:
+    - name: Configure cluster operators
+      include_tasks: tasks/configure-operators.yml
+      tags: [operators]
+
+    - name: Setup monitoring stack
+      include_tasks: tasks/setup-monitoring.yml
+      when: enable_monitoring | bool
+      tags: [monitoring]
+
+    - name: Configure backup solution
+      include_tasks: tasks/setup-backup.yml
+      when: enable_velero | bool
+      tags: [backup]

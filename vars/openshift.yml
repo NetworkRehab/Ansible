@@ -1,0 +1,38 @@
+---
+# Cluster Configuration
+openshift_version: "4.12"
+cluster_name: "prod-cluster"
+base_domain: "example.com"
+cluster_network_cidr: "10.128.0.0/14"
+cluster_host_prefix: 23
+service_network_cidr: "172.30.0.0/16"
+
+# Infrastructure Configuration
+control_plane_replicas: 3
+compute_replicas: 3
+infrastructure_replicas: 3
+
+# Storage Configuration
+storage_class_name: "managed-nfs-storage"
+enable_container_storage: true
+
+# Authentication
+identity_providers:
+  - name: "corporate_ldap"
+    type: "LDAPPasswordIdentityProvider"
+    ldap:
+      url: "ldaps://ldap.example.com:636/dc=example,dc=com?uid"
+      bindDN: "cn=directory manager"
+      bindPassword: "{{ vault_ldap_bind_password }}"
+
+# Monitoring Stack
+enable_monitoring: true
+monitoring_storage_size: "100Gi"
+retention_period: "15d"
+
+# Backup Configuration
+enable_velero: true
+backup_storage:
+  bucket: "openshift-backup"
+  region: "us-east-1"
+  credentials: "{{ vault_backup_credentials }}"

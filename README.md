@@ -25,103 +25,86 @@ Your one-stop shop for RHEL system automation! This repository makes system admi
 | 👥 `user_management` | Handles the "who can do what" stuff |
 | 🐘 `postgres_setup` | PostgreSQL magic |
 | 🎯 `rhel9-cis` | CIS compliance (for the serious stuff) |
+| 🌐 `httpd` | Apache web server setup |
+| 🗄️ `mariadb` | MariaDB database setup |
+| 🐘 `php` | PHP and modules |
+| 📦 `redis` | Redis cache server |
+| 🚦 `nginx` | Nginx web server |
+| 📊 `monitoring` | System monitoring tools |
 
-## Inventory Setup
+## Service Installation
 
-Create or modify the inventory file (`inventory.yml`):
+Install common services using tags:
+```bash
+# Install web server and PHP
+ansible-playbook site-services.yml --tags "web"
+
+# Install just MariaDB
+ansible-playbook site-services.yml --tags "database"
+
+# Install everything
+ansible-playbook site-services.yml
+```
+
+Enable specific services in your inventory:
 ```yaml
 all:
-  children:
-    rhel9_servers:
-      hosts:
-        db01.example.com:
-        web01.example.com:
-      vars:
-        ansible_user: admin
-    postgres_servers:
-      hosts:
-        db01.example.com:
+  hosts:
+    webserver:
+      enable_httpd: true
+      enable_php: true
+    dbserver:
+      enable_mariadb: true
 ```
 
-## 📝 Getting Started (The Fun Part!)
+## 🎡 OpenShift Installation
 
-### Test if Everything's Working
-```bash
-ansible all -i inventory.yml -m ping   # Like saying "hello" to all your servers
-```
-
-### Common Commands (Your Daily Toolkit)
-
-🔧 **Basic Operations:**
-```bash
-# Update all the things!
-ansible-playbook -i inventory.yml system-update.yml
-
-# Make one server extra secure
-ansible-playbook -i inventory.yml security.yml --limit web01.example.com
-```
-
-### 🎯 CIS Compliance Made Easy
-
-Want to make your RHEL 9 systems super secure? We've got you covered!
+Deploy a production-ready OpenShift cluster:
 
 ```bash
-# The "make everything secure" button:
-ansible-playbook site-cis.yml
+# Verify prerequisites only
+ansible-playbook playbooks/openshift-install.yml --tags prereq
 
-# Just the network stuff:
-ansible-playbook site-cis.yml --tags "section3"
+# Full installation
+ansible-playbook playbooks/openshift-install.yml
 
-# Preview mode (look before you leap):
-ansible-playbook site-cis.yml --check --diff
+# Install without monitoring
+ansible-playbook playbooks/openshift-install.yml --skip-tags monitoring
 ```
 
-Available Security Sections:
-- 📁 section1: Initial Setup
-- 🔌 section2: Services
-- 🌐 section3: Network Configuration
-- 📝 section4: Logging and Auditing
-- 🔐 section5: Access and Authentication
-- 🛠️ section6: System Maintenance
+### Prerequisites
+- OpenShift Pull Secret from Red Hat
+- Valid cloud provider credentials
+- DNS configuration
+- Required tools:
+  - openshift-install
+  - oc
+  - kubectl
+  - cloud provider CLI
 
-### 🔍 Quick Health Checks
+## 🎭 MicroK8s Installation
 
-Check on your servers' health:
+Deploy a production-ready MicroK8s cluster:
+
 ```bash
-# Who's awake?
-ansible all -i inventory.yml -m command -a "uptime"
+# Install full cluster
+ansible-playbook -i inventory/microk8s.yml playbooks/microk8s-install.yml
 
-# Got space?
-ansible all -i inventory.yml -m command -a "df -h"
+# Install without monitoring
+ansible-playbook -i inventory/microk8s.yml playbooks/microk8s-install.yml --skip-tags monitoring
+
+# Add new node to cluster
+ansible-playbook -i inventory/microk8s.yml playbooks/microk8s-install.yml --limit new_node.example.com
 ```
 
-### 🆘 Troubleshooting
-
-When things go sideways:
-```bash
-# Extra verbose mode (for the curious minds)
-ansible-playbook site.yml -vvv
-
-# Dry run (for the cautious souls)
-ansible-playbook site.yml --check
-```
-
-## 📁 Project Map
-```
-.
-├── 📄 inventory.yml
-├── 📄 site.yml
-├── 📄 site-cis.yml
-├── 📂 roles/
-│   ├── 🔄 system_update/
-│   ├── 🛡️ security_hardening/
-│   ├── 👥 user_management/
-│   ├── 🐘 postgres_setup/
-│   └── 🎯 rhel9-cis/
-└── 📂 playbooks/
-    ├── user.yml
-    └── maintenance.yml
-```
+### MicroK8s Features
+- High Availability Setup
+- Built-in Monitoring
+- Automatic RBAC
+- Load Balancing (MetalLB)
+- Certificate Management
+- Container Registry
+- Automated Backups
 
 ## 💡 Pro Tips
 
