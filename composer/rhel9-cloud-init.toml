@@ -1,0 +1,27 @@
+name = "rhel9-cloud-init"
+description = "RHEL 9 blueprint with cloud-init support"
+version = "0.0.1"
+modules = []
+groups = []
+
+[[packages]]
+name = "cloud-init"
+version = "*"
+
+[[packages]]
+name = "openssh-server"
+version = "*"
+
+[[packages]]
+name = "python3"
+version = "*"
+
+[[packages]]
+name = "NetworkManager"
+version = "*"
+
+[customizations]
+hostname = "rhel9-cloud"
+
+[customizations.services]
+enabled = ["cloud-init", "cloud-init-local", "cloud-config", "cloud-final", "NetworkManager", "sshd"]
