@@ -1,0 +1,8 @@
+[all]
+# Add your hosts here
+
+[webservers]
+# Add web servers here
+
+[databases]
+db01.example.com

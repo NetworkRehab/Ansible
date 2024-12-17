@@ -1,0 +1,42 @@
+---
+- name: Install PostgreSQL repo
+  dnf:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+    disable_gpg_check: yes
+
+- name: Install PostgreSQL
+  dnf:
+    name:
+      - postgresql14-server
+      - postgresql14
+    state: present
+
+- name: Initialize PostgreSQL database
+  command: /usr/pgsql-14/bin/postgresql-14-setup initdb
+  args:
+    creates: /var/lib/pgsql/14/data/postgresql.conf
+
+- name: Configure pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: /var/lib/pgsql/14/data/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  notify: restart postgresql
+
+- name: Configure postgresql.conf
+  template:
+    src: postgresql.conf.j2
+    dest: /var/lib/pgsql/14/data/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  notify: restart postgresql
+
+- name: Start and enable PostgreSQL service
+  service:
+    name: postgresql-14
+    state: started
+    enabled: yes

@@ -1,0 +1,7 @@
+---
+- name: Apply CIS Security Standards to RHEL 9
+  hosts: rhel9_servers
+  become: yes
+  roles:
+    - role: rhel9-cis
+      tags: cis

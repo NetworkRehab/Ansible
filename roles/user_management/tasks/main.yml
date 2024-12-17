@@ -1,0 +1,20 @@
+---
+- name: Ensure admin group exists
+  group:
+    name: admins
+    state: present
+
+- name: Create admin users
+  user:
+    name: "{{ item }}"
+    groups: admins,wheel
+    append: yes
+    state: present
+  loop: "{{ admin_users }}"
+
+- name: Set up authorized keys
+  authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: "{{ lookup('file', 'files/' + item + '.pub') }}"
+  loop: "{{ admin_users }}"

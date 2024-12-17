@@ -1,0 +1,36 @@
+---
+- name: Include Initial Setup tasks
+  ansible.builtin.include_tasks: section1.yml
+  tags:
+    - section1
+    - initial_setup
+
+- name: Include Services tasks
+  ansible.builtin.include_tasks: section2.yml
+  tags:
+    - section2
+    - services
+
+- name: Include Network Configuration tasks
+  ansible.builtin.include_tasks: section3.yml
+  tags:
+    - section3
+    - network
+
+- name: Include Logging and Auditing tasks
+  ansible.builtin.include_tasks: section4.yml
+  tags:
+    - section4
+    - logging
+
+- name: Include Access and Authentication tasks
+  ansible.builtin.include_tasks: section5.yml
+  tags:
+    - section5
+    - access
+
+- name: Include System Maintenance tasks
+  ansible.builtin.include_tasks: section6.yml
+  tags:
+    - section6
+    - system

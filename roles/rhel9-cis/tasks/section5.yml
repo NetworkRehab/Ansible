@@ -1,0 +1,42 @@
+---
+- name: 5.1.1 Configure password policy
+  block:
+    - name: Set password expiration parameters
+      lineinfile:
+        path: /etc/login.defs
+        regexp: "^{{ item.param }}"
+        line: "{{ item.param }} {{ item.value }}"
+      with_items:
+        - { param: "PASS_MAX_DAYS", value: "{{ rhel9_cis_pass.max_days }}" }
+        - { param: "PASS_MIN_DAYS", value: "{{ rhel9_cis_pass.min_days }}" }
+        - { param: "PASS_WARN_AGE", value: "{{ rhel9_cis_pass.warn_age }}" }
+
+    - name: Configure PAM password requirements
+      template:
+        src: pwquality.conf.j2
+        dest: /etc/security/pwquality.conf
+        owner: root
+        group: root
+        mode: '0644'
+  tags:
+    - level1
+    - section5.1
+
+- name: 5.2.1 Configure SSH server
+  block:
+    - name: Ensure SSH configuration is secure
+      template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Restart sshd service
+      service:
+        name: sshd
+        state: restarted
+  when: rhel9_cis_enable_ssh
+  tags:
+    - level1
+    - section5.2

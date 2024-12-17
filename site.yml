@@ -1,0 +1,29 @@
+---
+# Common play for all servers
+- name: Common Server Configuration
+  hosts: all
+  become: true
+  vars:
+    admin_users:
+      - admin1
+      - admin2
+  roles:
+    - system_update
+    - security_hardening
+    - user_management
+
+# Database servers configuration
+- name: Database Servers Setup
+  hosts: databases
+  become: true
+  vars:
+    postgres_allowed_network: "10.0.0.0/24"
+  roles:
+    - postgres_setup
+
+# Web servers configuration
+- name: Web Servers Setup
+  hosts: webservers
+  become: true
+  roles: []
+    # Add web-specific roles here when created

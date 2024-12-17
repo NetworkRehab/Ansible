@@ -1,0 +1,21 @@
+---
+- name: Ensure SELinux is enabled
+  selinux:
+    state: enforcing
+    policy: targeted
+
+- name: Configure firewall
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - ssh
+    - http
+    - https
+
+- name: Ensure firewall is running
+  service:
+    name: firewalld
+    state: started
+    enabled: yes

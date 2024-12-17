@@ -1,0 +1,42 @@
+---
+- name: Remove CUPS and related print services
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop CUPS services
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      with_items:
+        - cups
+        - cups-browsed
+      ignore_errors: true
+
+    - name: Remove CUPS packages
+      package:
+        name:
+          - cups
+          - cups-browsed
+          - cups-filters
+          - cups-daemon
+          - cups-client
+          - cups-common
+        state: absent
+        purge: yes
+
+    - name: Remove CUPS configuration directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/cups
+        - /var/cache/cups
+        - /var/spool/cups
+        - /var/log/cups
+
+    - name: Remove printer devices
+      file:
+        path: /dev/lp*
+        state: absent
+      ignore_errors: true

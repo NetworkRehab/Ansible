@@ -1,0 +1,43 @@
+---
+- name: 4.1.1 Configure Audit Daemon
+  block:
+    - name: Ensure auditd is installed
+      package:
+        name: audit
+        state: present
+
+    - name: Configure auditd rules
+      template:
+        src: audit.rules.j2
+        dest: /etc/audit/rules.d/audit.rules
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Enable auditd service
+      service:
+        name: auditd
+        state: started
+        enabled: yes
+  tags:
+    - level2
+    - section4.1
+
+- name: 4.2.1 Configure rsyslog
+  block:
+    - name: Ensure rsyslog is installed
+      package:
+        name: rsyslog
+        state: present
+
+    - name: Configure rsyslog
+      template:
+        src: rsyslog.conf.j2
+        dest: /etc/rsyslog.conf
+        owner: root
+        group: root
+        mode: '0644'
+  when: rhel9_cis_logging.remote_logging
+  tags:
+    - level1
+    - section4.2

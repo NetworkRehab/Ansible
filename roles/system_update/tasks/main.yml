@@ -1,0 +1,11 @@
+---
+- name: Update all packages
+  dnf:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Ensure system is rebooted if needed
+  reboot:
+    msg: "Reboot by Ansible due to system updates"
+  when: ansible_pkg_mgr == 'dnf' and ansible_dnf.updates is defined and ansible_dnf.updates|length > 0

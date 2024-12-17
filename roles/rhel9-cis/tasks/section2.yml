@@ -1,0 +1,39 @@
+---
+- name: 2.1.1 Ensure xinetd is not installed
+  package:
+    name: xinetd
+    state: absent
+  tags:
+    - level1
+    - section2.1
+
+- name: 2.2.1 Configure time synchronization
+  block:
+    - name: Ensure chrony is installed
+      package:
+        name: chrony
+        state: present
+
+    - name: Ensure chronyd service is enabled and running
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+  tags:
+    - level1
+    - section2.2
+
+- name: 2.3 Ensure unnecessary services are disabled
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - avahi-daemon
+    - cups
+    - dhcpd
+    - slapd
+    - rpcbind
+  tags:
+    - level1
+    - section2.3

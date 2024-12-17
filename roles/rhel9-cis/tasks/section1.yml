@@ -1,0 +1,35 @@
+---
+- name: 1.1.1 Disable unused filesystems
+  lineinfile:
+    path: /etc/modprobe.d/cis.conf
+    line: "install {{ item }} /bin/true"
+    create: yes
+  with_items:
+    - cramfs
+    - squashfs
+    - udf
+  tags:
+    - level1
+    - section1.1
+    - patch
+
+- name: 1.1.2 Configure /tmp partition
+  mount:
+    path: /tmp
+    src: tmpfs
+    fstype: tmpfs
+    opts: defaults,nodev,nosuid,noexec
+    state: mounted
+  tags:
+    - level1
+    - section1.1
+    - patch
+
+- name: 1.2.1 Ensure GPG keys are configured
+  command: rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE} --> %{SUMMARY}\n'
+  register: gpg_keys
+  changed_when: false
+  tags:
+    - level1
+    - section1.2
+    - audit

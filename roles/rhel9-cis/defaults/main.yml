@@ -1,0 +1,26 @@
+---
+# CIS Controls Configuration
+rhel9_cis_level: 2
+rhel9_cis_enable_selinux: true
+rhel9_cis_enable_firewall: true
+rhel9_cis_enable_aide: true
+rhel9_cis_enable_ssh: true
+
+# Password Configuration
+rhel9_cis_pass:
+  max_days: 90
+  min_days: 7
+  warn_age: 7
+  retry: 3
+  dcredit: -1
+  ucredit: -1
+  ocredit: -1
+  lcredit: -1
+  minlen: 14
+
+# Logging Configuration
+rhel9_cis_logging:
+  remote_logging: false
+  remote_log_host: logging.example.com
+  max_log_file: 8
+  max_log_file_action: rotate

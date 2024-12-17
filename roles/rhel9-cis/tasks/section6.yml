@@ -1,0 +1,46 @@
+---
+- name: 6.1.1 Configure SELinux
+  block:
+    - name: Ensure SELinux is enabled in bootloader
+      replace:
+        path: /etc/default/grub
+        regexp: 'selinux=0|enforcing=0'
+        replace: ''
+
+    - name: Configure SELinux state and policy
+      selinux:
+        state: enforcing
+        policy: targeted
+
+    - name: Ensure SELinux tools are installed
+      package:
+        name:
+          - policycoreutils
+          - policycoreutils-python-utils
+          - selinux-policy
+        state: present
+  when: rhel9_cis_enable_selinux
+  tags:
+    - level1
+    - section6.1
+
+- name: 6.2.1 Configure AIDE
+  block:
+    - name: Install AIDE
+      package:
+        name: aide
+        state: present
+
+    - name: Initialize AIDE database
+      command: aide --init
+      args:
+        creates: /var/lib/aide/aide.db.new
+
+    - name: Copy new database
+      command: cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
+      args:
+        creates: /var/lib/aide/aide.db
+  when: rhel9_cis_enable_aide
+  tags:
+    - level1
+    - section6.2

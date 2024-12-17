@@ -1,0 +1,45 @@
+---
+- name: 3.1.1 Ensure IP forwarding is disabled
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    reload: yes
+  tags:
+    - level1
+    - section3.1
+
+- name: 3.2.1 Configure firewalld
+  block:
+    - name: Ensure firewalld is installed
+      package:
+        name: firewalld
+        state: present
+
+    - name: Ensure firewalld service is enabled and running
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Set default zone
+      command: firewall-cmd --set-default-zone=public
+      changed_when: false
+  when: rhel9_cis_enable_firewall
+  tags:
+    - level1
+    - section3.2
+
+- name: 3.3.1 Configure /etc/hosts.allow and /etc/hosts.deny
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - { src: 'hosts.allow.j2', dest: '/etc/hosts.allow' }
+    - { src: 'hosts.deny.j2', dest: '/etc/hosts.deny' }
+  tags:
+    - level1
+    - section3.3
